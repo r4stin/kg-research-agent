@@ -9,6 +9,7 @@ dependencies:
 
   - pip:
       - google-genai
+      - google-generativeai
       - google-adk
       - chromadb
       - neo4j

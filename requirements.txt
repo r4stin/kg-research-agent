@@ -1,0 +1,11 @@
+google-genai
+google-adk
+chromadb
+neo4j
+pypdf
+python-dotenv
+pydantic
+tqdm
+rich
+numpy
+pandas

@@ -1,0 +1,20 @@
+name: kg-research-agent
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - pandas
+
+  - pip:
+      - google-genai
+      - google-adk
+      - chromadb
+      - neo4j
+      - pypdf
+      - python-dotenv
+      - pydantic
+      - tqdm
+      - rich
+

@@ -6,15 +6,20 @@ from src.kg.kg_client import Neo4jClient
 def run_query(question: str):
     """
     Query Neo4j for all claims and evidence that were extracted
-    for a given research question.
+    for a given research question (substring match, case-insensitive).
     """
+
+    question = question.strip()
+    if not question:
+        print("Please enter a non-empty question substring to search for.")
+        return []
 
     client = Neo4jClient()
 
     cypher = """
     MATCH (e:Evidence)-[r:EVIDENCE_FOR_QUESTION]->(c:Claim)
     MATCH (p:Paper)-[:HAS_CLAIM]->(c)
-    WHERE r.question CONTAINS $question
+    WHERE toLower(r.question) CONTAINS toLower($question)
     RETURN p.paper_id AS paper_id,
            p.source AS source,
            c.text AS claim,
@@ -49,7 +54,6 @@ def print_results(results):
 
 def main():
     question = input("Enter a question to search the KG: ")
-
     results = run_query(question)
     print_results(results)
 

@@ -52,9 +52,6 @@ class Neo4jClient:
 
     @staticmethod
     def _upsert_evidence_item(tx, question: str, item: EvidenceItem):
-        """
-        Upsert a single EvidenceItem into the graph.
-        """
         tx.run(
             """
             // Upsert Paper node
@@ -64,8 +61,13 @@ class Neo4jClient:
             // Upsert Claim node
             MERGE (c:Claim {text: $claim})
 
-            // Upsert Evidence node
-            MERGE (e:Evidence {text: $evidence_sentence, chunk_index: $chunk_index})
+            // Upsert Evidence node with stable identity
+            MERGE (e:Evidence {
+              paper_id: $paper_id,
+              chunk_index: $chunk_index,
+              claim: $claim
+            })
+              ON CREATE SET e.text = $evidence_sentence
 
             // Relationships
             MERGE (p)-[:HAS_CLAIM]->(c)

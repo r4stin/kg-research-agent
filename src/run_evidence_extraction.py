@@ -12,6 +12,7 @@ from src.tools.vector_search import vector_search
 from src.utils.format_hits import format_hits_for_prompt
 from src.agents.evidence_agent import create_evidence_agent
 from src.models.evidence import EvidenceResponse
+from src.kg.kg_client import Neo4jClient
 
 
 APP_NAME = "kg-research-agent-evidence-app"
@@ -82,11 +83,9 @@ Now extract structured evidence as JSON according to your instructions.
 
     # 5. Try to parse as JSON into our Pydantic model
     try:
-        # Sometimes the model may wrap JSON in markdown ```json blocks; strip them.
         cleaned = final_text.strip()
         if cleaned.startswith("```"):
             cleaned = cleaned.strip("`")
-            # remove possible 'json' start
             cleaned = cleaned.replace("json", "", 1).strip()
 
         data = json.loads(cleaned)
@@ -103,6 +102,13 @@ Now extract structured evidence as JSON according to your instructions.
         print("Claim:", item.claim)
         print("Evidence sentence:", item.evidence_sentence)
         print(f"Source: {item.source} (paper_id={item.paper_id}, chunk_index={item.chunk_index})")
+
+    # 6. Write to Neo4j
+    print("\nWriting evidence into Neo4j...")
+    client = Neo4jClient()
+    client.upsert_evidence_response(evidence)
+    client.close()
+    print("Done. You can now explore the graph in Neo4j Browser.")
 
 
 if __name__ == "__main__":

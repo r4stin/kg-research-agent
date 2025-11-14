@@ -146,6 +146,3 @@ def test_dedup_similar_claims_default_is_conservative():
     deduped = deduplicate_evidence(evidence)  # default threshold=0.9
     # With a strict threshold, paraphrases are not merged.
     assert len(deduped.items) == 2
-
-
-#TODO: Decide to add new features or draft an eyecatching highly impactful README file

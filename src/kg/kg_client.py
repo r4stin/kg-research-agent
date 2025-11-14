@@ -6,6 +6,7 @@ from neo4j import GraphDatabase
 
 from src.config import NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD
 from src.models.evidence import EvidenceResponse, EvidenceItem
+from src.utils.dedup_evidence import _question_hash  # reuse helper
 
 
 class Neo4jClient:
@@ -52,20 +53,23 @@ class Neo4jClient:
 
     @staticmethod
     def _upsert_evidence_item(tx, question: str, item: EvidenceItem):
+        q_hash = _question_hash(question)
+
         tx.run(
             """
             // Upsert Paper node
             MERGE (p:Paper {paper_id: $paper_id})
               ON CREATE SET p.source = $source
 
-            // Upsert Claim node
+            // Upsert Claim node (still deduped by text)
             MERGE (c:Claim {text: $claim})
 
-            // Upsert Evidence node with stable identity
+            // Upsert Evidence node with strict identity:
+            // one node per (paper, chunk, question_hash)
             MERGE (e:Evidence {
               paper_id: $paper_id,
               chunk_index: $chunk_index,
-              claim: $claim
+              question_hash: $question_hash
             })
               ON CREATE SET e.text = $evidence_sentence
 
@@ -80,4 +84,5 @@ class Neo4jClient:
             evidence_sentence=item.evidence_sentence,
             chunk_index=item.chunk_index,
             question=question,
+            question_hash=q_hash,
         )

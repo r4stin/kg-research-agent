@@ -13,6 +13,7 @@ from src.utils.format_hits import format_hits_for_prompt
 from src.agents.evidence_agent import create_evidence_agent
 from src.models.evidence import EvidenceResponse
 from src.kg.kg_client import Neo4jClient
+from src.utils.dedup_evidence import deduplicate_evidence
 
 
 APP_NAME = "kg-research-agent-evidence-app"
@@ -90,6 +91,7 @@ Now extract structured evidence as JSON according to your instructions.
 
         data = json.loads(cleaned)
         evidence = EvidenceResponse(**data)
+        evidence = deduplicate_evidence(evidence)
 
     except Exception as e:
         print("\nCould not parse JSON into EvidenceResponse:", e)

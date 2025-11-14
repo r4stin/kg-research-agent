@@ -13,6 +13,7 @@ from src.utils.format_hits import format_hits_for_prompt
 from src.agents.evidence_agent import create_evidence_agent
 from src.agents.answer_agent import create_answer_agent
 from src.models.evidence import EvidenceResponse
+from src.utils.dedup_evidence import deduplicate_evidence
 
 
 APP_NAME_EVIDENCE = "kg-research-agent-evidence-app"
@@ -86,6 +87,7 @@ Now extract structured evidence as JSON according to your instructions.
     try:
         data = json.loads(cleaned)
         evidence = EvidenceResponse(**data)
+        evidence = deduplicate_evidence(evidence)
     except Exception as e:
         print("Could not parse evidence JSON:", e)
         print("Raw evidence_text:\n", evidence_text)

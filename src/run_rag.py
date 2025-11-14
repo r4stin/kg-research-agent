@@ -1,4 +1,4 @@
-# src/main.py
+# src/run_rag.py
 
 import asyncio
 

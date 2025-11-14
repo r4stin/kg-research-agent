@@ -23,7 +23,10 @@ SESSION_ID = "evidence-session-1"
 
 async def main():
     # 1. Get user question
-    question = input("Enter your research question: ")
+    question = input("Enter your research question: ").strip()
+    if not question:
+        print("Please enter a non-empty research question.")
+        return
 
     # 2. Retrieve chunks via vector_search
     hits: List[Dict] = vector_search(question, k=5)

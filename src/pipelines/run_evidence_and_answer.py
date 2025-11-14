@@ -22,7 +22,10 @@ USER_ID = "local_user"
 
 
 async def main():
-    question = input("Enter your research question: ")
+    question = input("Enter your research question: ").strip()
+    if not question:
+        print("Please enter a non-empty research question.")
+        return
 
     # 1. Retrieve chunks via vector_search
     hits: List[Dict] = vector_search(question, k=5)

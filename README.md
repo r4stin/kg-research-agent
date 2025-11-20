@@ -1,9 +1,10 @@
+
 # 📚 **KG-Research-Agent**
-### *Evidence-Aware RAG + Knowledge Graph System Built with Gemini, ADK, ChromaDB & Neo4j*
+### *Multi-Agent, Evidence-Grounded Research System with Gemini, ADK, ChromaDB & Neo4j*
 
 <div align="center">
 
-**🔥 A research-grade AI agent that extracts claims + evidence from scientific papers, stores them in a knowledge graph, and answers questions with fully grounded citations.**
+**🔥 A research-grade AI agent that extracts claims + evidence from scientific papers, stores them in a knowledge graph, retrieves context, and answers questions using multi-agent reasoning with session memory.**
 
 [![Python](https://img.shields.io/badge/Python-3.10-blue.svg)]()
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)]()
@@ -17,68 +18,65 @@
 
 # 🚀 **Overview**
 
-**KG-Research-Agent** is a modular, evidence-grounded research assistant designed to:
+**KG-Research-Agent** is an AI-powered research assistant that:
 
-- Ingest scientific PDFs  
-- Chunk + embed them using Gemini  
-- Retrieve relevant evidence (RAG)  
-- Extract claims + sentences with structured LLM outputs  
-- Write them into a **Neo4j Knowledge Graph**  
-- Answer questions with **verifiable citations**  
-- Support **deduplication**, metadata tracking, and test coverage  
-
+- Ingests scientific PDFs  
+- Embeds + stores them in ChromaDB  
+- Retrieves relevant text chunks (RAG)  
+- Extracts **structured claims & evidence** from papers  
+- Stores them in a **Neo4j Knowledge Graph**  
+- Answers questions using **citations grounded in source text**  
+- Uses a **multi-agent pipeline** (Planner → Retriever → Evidence → Answer)  
+- Supports **multi-turn conversations with session memory**
 
 ---
 
-# 🧠 **High-Level Architecture**
+# 🧠 **Updated Architecture (Multi-Agent + Memory)**
 
 ```
-                                                ┌────────────────────────┐
-                                                │   User Research Query  │
-                                                └────────────────────────┘
-                                                            │
-                                                            ▼
-                                                  ┌────────────────────┐
-                                                  │   Retriever Tool   │
-                                                  │ (ChromaDB + Gemini)│
-                                                  └────────────────────┘
-                                                            │ chunks
-                                                            ▼
-                                                  ┌────────────────────┐
-                                                  │ Evidence Extractor │
-                                                  │  (LLM structured)  │
-                                                  └────────────────────┘
-                                                            │ claims + sentences
-                                                            ▼
-                              ┌──────────────────────────────────────────────────────────────────┐
-                              │                         Neo4j Knowledge Graph                    │
-                              │──────────────────────────────────────────────────────────────────│
-                              │        Nodes: Claim, Evidence, Paper, Chunk, Question            │
-                              │      Relationships: SUPPORTS, FROM_CHUNK, ANSWERS, IN_PAPER      │
-                              └──────────────────────────────────────────────────────────────────┘
-                                                            │
-                                                            ▼
-                                                  ┌────────────────────┐
-                                                  │   Answer Composer  │
-                                                  │   with citations   │
-                                                  └────────────────────┘
-                                                            │
-                                                            ▼
-                                                     **Final Answer**
+┌──────── User ────────┐
+          │
+          ▼
+┌───────────────┐
+│ Planner Agent │  ← uses chat history + memory
+└───────────────┘
+     │ plans tasks
+     ▼
+┌────────────────────────┐
+│ Retriever Agent        │ → ChromaDB (vector search)
+└────────────────────────┘
+     │ chunks
+     ▼
+┌────────────────────────┐
+│ Evidence Agent         │ → extracts claims + sentences
+└────────────────────────┘
+     │ structured JSON
+     ▼
+┌────────────────────────┐
+│ Answer Agent           │ → composes human-readable answer
+└────────────────────────┘
+     │
+     ▼
+ **Final Answer + Citations**
+
+📦 Persistent Storage:
+- Neo4j → long-term knowledge graph
+- ChromaDB → vector retrieval
+- SessionState → short-term conversation memory
 ```
 
 ---
 
 # ✨ **Current Features**
 
-### ✔️ PDF → Chunking → Vector Store  
-### ✔️ RAG Retrieval via ADK Tool  
-### ✔️ LLM Structured Evidence Extraction  
-### ✔️ Neo4j Knowledge Graph Writer  
-### ✔️ KG Query Engine  
-### ✔️ Deduplication (per chunk + similarity)  
-### ✔️ Evidence → Answer Generation  
-### ✔️ Full pytest suite  
+### ✔️ PDF → Chunking → Vector Storage  
+### ✔️ RAG Retrieval (Chroma + Gemini)  
+### ✔️ Multi-Agent System (Planner → Retriever → Evidence → Answer)  
+### ✔️ Structured JSON Evidence Extraction  
+### ✔️ Neo4j Knowledge Graph Storage  
+### ✔️ Session Memory (short-term conversational context)  
+### ✔️ Deduplication (per chunk + semantic similarity)  
+### ✔️ Multi-turn conversational research workflow  
 
 ---
 
@@ -132,50 +130,41 @@ python -m src.run_evidence_extraction
 python -m src.pipelines.run_kg_query
 ```
 
-### Full Answering Pipeline
-```
-python -m src.pipelines.run_evidence_and_answer
-```
+# 🔧 **New: Multi-Agent Runner**
 
----
-
-# 🧪 Tests
-
-Run all tests:
+Run full pipeline with memory:
 
 ```
-pytest
+python -m src.pipelines.run_multi_agent_pipeline
 ```
 
-Specifically dedup tests:
+Example:
 
 ```
-pytest tests/test_dedup_evidence_strict.py
+You: What is a major challenge in scholarly information retrieval?
+You: Summarize in one sentence.
 ```
+
+The agent maintains context across turns.
 
 ---
 
 # 🗺️ **Roadmap**
 
-## 🟥 Agent Quality
-- Add observability (logs, traces)
-- Add metrics
-- Add LLM-as-a-Judge evaluation
-- Add scorecards for evidence quality
+## 🟥 Agent Quality (Next Milestone)
+- ADK logs + traces
+- Metrics for agent performance
+- LLM-as-a-Judge evaluation
 
-## 🟦 Multi-Agent System
-- Planner agent
-- Retriever agent
-- Evidence agent
-- Answer agent
-- Message routing
-- Modular ADK node design
+## 🟦 Multi-Agent Enhancements
+- Add **KG Agent** (read/write Neo4j in pipeline)
+- Add planner task types: `kg_query`, `kg_write`
+- Context compaction + memory optimization
 
 ## 🟩 Productionization
-- Add A2A Protocol (Agent-to-Agent messaging)
-- Deploy to Vertex AI Agent Engine
-- Build HTTP endpoints
-- Add scalable logging + monitoring
+- A2A protocol (agent-to-agent messaging)
+- Deployment to **Vertex AI Agent Engine**
+- API endpoints + orchestration layer
 
 ---
 

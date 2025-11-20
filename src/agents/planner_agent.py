@@ -1,7 +1,7 @@
 # src/agents/planner_agent.py
 
 import json
-from typing import List
+from typing import List, Optional
 
 from google.adk.agents import LlmAgent
 from google.adk import Runner
@@ -56,13 +56,12 @@ def create_planner_agent() -> LlmAgent:
     )
 
 
-def plan_question(question: str) -> List[PlannerTask]:
+def plan_question(question: str, history_context: Optional[str] = None) -> List[PlannerTask]:
     """
-    Convenience helper: run the planner agent once
-    and parse the resulting JSON into PlannerTask objects.
+    Run the planner agent once and parse the resulting JSON into PlannerTask objects.
+    Optionally include short session history as context.
     """
 
-    # Wrap question in our Pydantic model (for clarity/type safety)
     rq = ResearchQuery(question=question)
 
     agent = create_planner_agent()
@@ -76,7 +75,6 @@ def plan_question(question: str) -> List[PlannerTask]:
     user_id = "local_user"
     session_id = "planner-session-1"
 
-    # create session if needed
     import asyncio
     asyncio.run(
         session_service.create_session(
@@ -86,10 +84,20 @@ def plan_question(question: str) -> List[PlannerTask]:
         )
     )
 
+    history_block = ""
+    if history_context:
+        history_block = (
+            "Here is the recent conversation history you should consider "
+            "when planning (it may contain follow-up questions):\n\n"
+            f"{history_context}\n\n"
+            "End of history.\n"
+        )
+
     prompt = (
         "You will receive a research question.\n"
         "Decide which tasks to run, following your instructions.\n\n"
-        f"Question: {rq.question}\n\n"
+        f"{history_block}"
+        f"Current question: {rq.question}\n\n"
         "Return only JSON as specified."
     )
 

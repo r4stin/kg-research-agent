@@ -31,7 +31,7 @@
 
 A full walkthrough of the multi-agent research system is available on YouTube:
 
-👉 **[Watch the Demo Video](https://youtu.be/vaq0-AMOudo)**
+👉 **[Watch the Concept Overview](https://youtu.be/vaq0-AMOudo)**
 
 ---
 

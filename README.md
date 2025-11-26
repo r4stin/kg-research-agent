@@ -29,6 +29,10 @@
 - Uses a **multi-agent pipeline** (Planner → Retriever → Evidence → Answer)  
 - Supports **multi-turn conversations with session memory**
 
+A full walkthrough of the multi-agent research system is available on YouTube:
+
+👉 **[Watch the Demo Video](https://youtu.be/vaq0-AMOudo)**
+
 ---
 
 # 🧠 **Updated Architecture (Multi-Agent + Memory)**
